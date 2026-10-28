@@ -16,7 +16,13 @@ window.SC = {
     referral: { friend: 100, referrer: 100 }, // smr_price_list.md, Jay approved Oct 22, 2026
     newRate: 149, foundingRate: 99,
     demoBooked: { name: "Gold Full (Sedan)", price: 525 }, // real Square price, demo booking
-    loyalty: [{ t: "Member", from: 0 }, { t: "Silver Circle", from: 6 }, { t: "Gold Circle", from: 12 }, { t: "Platinum Circle", from: 24 }], // months of continuous membership; perks per tier set by owners
+    // Loyalty (owner-approved Oct 28, 2026): months of continuous membership. One perk per tier; add-on discount stays within 10-20%.
+    loyalty: [
+      { t: "Member", from: 0, addonPct: 10, perk: "10% off add-ons" },
+      { t: "Silver Circle", from: 3, addonPct: 15, perk: "15% off add-ons" },
+      { t: "Gold Circle", from: 6, addonPct: 15, perk: "Priority booking" },
+      { t: "Platinum Circle", from: 12, addonPct: 20, perk: "20% off add-ons plus a yearly bonus perk" }
+    ],
     giftPrice: null, householdPrice: null // owner sets; shown as "set by owner" until filled
   },
   reports: {
@@ -51,4 +57,11 @@ window.SC = {
     { t: "Spills: blot, don't rub", d: "Blot with a microfiber, then text us. Shampoo is a Gold-or-higher service.", tag: "Interior" },
     { t: "Bird droppings fast", d: "Remove within 24 h with quick detailer to avoid etching.", tag: "Paint" }
   ]
+};
+/* Loyalty helper: months = continuous months (+ any starting credit, e.g. comped VIP starts at top tier). */
+window.SC.loyaltyFor = function (months, L) {
+  L = L || window.SC.config.loyalty; var cur = L[0], nxt = null;
+  for (var i = 0; i < L.length; i++) { if (months >= L[i].from) cur = L[i]; else { nxt = L[i]; break; } }
+  var perks = L.filter(function (t) { return t.from <= cur.from && t.from > 0; }).map(function (t) { return t.perk; });
+  return { cur: cur, nxt: nxt, addonPct: cur.addonPct, perks: perks };
 };
