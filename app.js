@@ -9,9 +9,10 @@ const ico = {
  more:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
 };
 const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ico[k]}</svg>`;
+const TOUR = [['garage','Your car in 3D','Spin it, zoom in, see it in a studio spotlight.'],['add','Add your car','Four photos, front, both sides and rear. We build the model.'],['plan','Your membership card','Your tier, your rate, your member number, always on hand.'],['perks','The perks vault','Members-only extras, unlocked as you go.'],['book','Book in seconds','Pick a service and confirm in Square.']];
 const routes = [
  ['home','Lounge','home',1],['garage','Garage','garage',1],['book','Book','book',1],['perks','Vault','perks',1],['more','More','more',1],
- ['history','History'],['add','Add car'],['building','Building'],['care','Care'],['refer','Refer'],['concierge','Concierge'],['plan','Plan']
+ ['history','History'],['add','Add car'],['building','Building'],['care','Care'],['refer','Refer'],['concierge','Concierge'],['plan','Plan'],['tour','Tour'],['car','Car'],['transfer','Transfer car'],['rate','Rate visit'],['share','Share'],['savings','Savings']
 ];
 $('.tabs').innerHTML = routes.filter(r => r[3]).map(r => `<a href="#/${r[0]}" data-r="${r[0]}">${svg(r[2])}<span>${r[1]}</span></a>`).join('');
 $('.side').innerHTML = routes.filter(r => !['more','add','building'].includes(r[0])).map(r => `<a href="#/${r[0]}" data-r="${r[0]}">${r[1]}</a>`).join('');
@@ -19,19 +20,48 @@ const toast = m => { const t = $('.toast'); t.textContent = m; t.classList.add('
 const m = S.member;
 const ring = (v, size = 64) => { const r = size / 2 - 5, c = 2 * Math.PI * r; return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Shine health ${v} of 100"><circle cx="${size/2}" cy="${size/2}" r="${r}" class="bg"/><circle cx="${size/2}" cy="${size/2}" r="${r}" class="fg" style="--c:${c};--o:${c * (1 - v / 100)}"/><text x="50%" y="54%" text-anchor="middle">${v}</text></svg>`; };
 const bookBtn = (label = 'Book on Square', cls = 'btn gold') => `<a class="${cls}" href="${S.bookingUrl}" target="_blank" rel="noopener">${label} <span aria-hidden="true">↗</span></a>`;
-const card3d = () => `<div class="bcard tilt" aria-label="Shine Club member card (demo)"><div class="shine"></div>
+const card3d = () => `<div class="cardwrap"><div class="bcard tilt" aria-label="Shine Club member card (demo)"><div class="shine"></div>
  <div class="bc-top"><img src="brand/smr-logo-96.webp" width="34" height="34" alt=""><span>SHINE CLUB</span><em>${esc(m.tier)}</em></div>
  <div class="bc-num">${esc(m.number)}</div>
- <div class="bc-bot"><div><small>Member</small><b>${esc(m.first)} ${esc(m.last)}</b></div><div><small>Rate</small><b>$${m.rate}/mo</b></div><div><small>Since</small><b>Oct 2026</b></div></div></div>`;
+ <div class="bc-bot"><div><small>Member</small><b>${esc(m.first)} ${esc(m.last)}</b></div><div><small>Rate</small><b>$${m.rate}/mo</b></div><div><small>Since</small><b>Oct 2026</b></div></div></div><p class="lockbadge">🔒 Founding $99 locked while membership stays continuous</p></div>`;
+const monthsSince = (d) => { const a = new Date(d), b = new Date(); return Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth() + 1); };
 const pages = {
+car: () => { const id = (location.hash.split('?id=')[1]||'v1'), v = S.vehicles.find(x=>x.id===id)||S.vehicles[0], R = (S.reports||{})[v.id]||[], D = (S.docs||{})[v.id]||[];
+ return `<p class="eyebrow rise">Your garage</p><h1 class="rise">${esc(v.name)}</h1><p class="muted rise">${esc(v.detail)} · ${esc(v.plate)} · ${esc(v.coat)}</p>
+ <div class="row rise"><a class="btn ghost" href="#/garage">View in 3D</a><a class="btn ghost" href="#/transfer?id=${v.id}">Transfer car</a></div>
+ <h2 class="rise sec">Condition reports</h2><div class="stack">${R.map(r=>`<article class="panel report rise"><div class="rhead"><div><p class="eyebrow">${esc(r.date)}</p><h2>After your visit</h2></div>${ring(r.score,58)}</div>
+ <div class="pics">${r.photos.map(ph=>`<figure><div class="ph"></div><figcaption>${esc(ph)} · demo photo</figcaption></figure>`).join('')}</div>
+ <dl class="rlist"><div><dt>Paint</dt><dd>${esc(r.paint)}</dd></div><div><dt>Protection</dt><dd>${esc(r.coat)}</dd></div><div><dt>Wheels</dt><dd>${esc(r.wheels)}</dd></div><div><dt>Interior</dt><dd>${esc(r.interior)}</dd></div></dl>
+ <p class="nextstep"><b>Next step</b> ${esc(r.next)}</p></article>`).join('')||'<p class="muted">No reports yet.</p>'}</div>
+ <h2 class="rise sec">Service history</h2><ol class="timeline">${S.history.filter(h=>h.vehicle===v.name).map(h=>`<li class="rise"><time>${esc(h.date)}</time><b>${esc(h.service)}</b><p class="muted">${esc(h.notes)}</p></li>`).join('')}</ol>
+ <h2 class="rise sec">Warranty &amp; documents</h2><div class="stack">${D.map(d=>`<article class="panel doc rise"><span>📄</span><div><b>${esc(d.t)}</b><p class="muted">${esc(d.d)}</p></div></article>`).join('')}</div>
+ <p class="fine">Demo data. Reports, photos and documents will come from each real visit.</p>`; },
+transfer: () => { const id = (location.hash.split('?id=')[1]||'v1'), v = S.vehicles.find(x=>x.id===id)||S.vehicles[0];
+ return `<h1 class="rise">Transfer a car</h1><p class="muted rise">Sold it or got a new one? Move your membership visits to another car.</p>
+ <article class="panel rise"><p class="eyebrow">From</p><h2>${esc(v.name)}</h2><p class="muted">${esc(v.plate)}</p></article>
+ <article class="panel rise"><p class="eyebrow">To</p><label class="fld">Year, make &amp; model<input placeholder="e.g. 2024 Honda Accord"></label><label class="fld">Color<input placeholder="e.g. Pearl White"></label></article>
+ <div class="row rise"><button class="btn gold" disabled>Request transfer</button></div><p class="fine">Preview only. Your concierge confirms every transfer, and the car's report history stays with you.</p>`; },
+rate: () => `<h1 class="rise">Rate your visit</h1><p class="muted rise">${esc(S.lastVisit.vehicle)} · ${esc(S.lastVisit.date)}</p>
+ <article class="panel rise ratebox"><div class="bigstars" role="radiogroup" aria-label="Rating">${[1,2,3,4,5].map(n=>`<button data-star="${n}" aria-label="${n} stars">★</button>`).join('')}</div>
+ <div class="tips" hidden><p class="eyebrow">Add a tip? Optional</p><div class="row">${['$5','$10','$20','Custom','No tip'].map(t=>`<button class="btn ghost" data-tip>${t}</button>`).join('')}</div></div></article>
+ <a class="panel msgline rise" href="sms:${S.tel}"><span>💬</span><span><b>Message us directly</b><br><span class="muted">Text ${esc(S.phone)}. A real person answers.</span></span></a>
+ <p class="fine">Preview: tips and ratings aren't sent anywhere.</p>`,
+tour: () => `<h1 class="rise">Tour the Club</h1><p class="muted rise">Everything your membership opens up, in one place.</p>
+ <section class="tour"><div class="phone-wrap"><div class="phone" id="phone"><div class="notch"></div>${TOUR.map((t,i)=>`<img src="tour/${t[0]}.webp" alt="${esc(t[1])} screen" ${i?'loading="lazy"':''} class="${i?'':'on'}" data-i="${i}">`).join('')}</div></div>
+ <div class="tsteps">${TOUR.map((t,i)=>`<div class="tstep" data-i="${i}"><p class="eyebrow">0${i+1}</p><h2>${esc(t[1])}</h2><p class="muted">${esc(t[2])}</p></div>`).join('')}</div></section>
+ <div class="row rise"><a class="btn gold" href="#/home" data-skip>Go to my dashboard</a></div><a class="skip-pill" href="#/home" data-skip>Skip to my dashboard →</a>`,
 home: () => `
  <section class="hero rise"><p class="eyebrow">Good ${greet()}, ${esc(m.first)}</p><h1>Your Members Lounge</h1>
- <p class="muted">${esc(m.tier)} member · <span class="ok">● ${esc(m.status)}</span> · next bill ${esc(m.nextBill)}</p><div class="row">${bookBtn('Book my next shine')}<a class="btn ghost" href="#/perks">Open the vault</a></div></section>
+ <p class="muted">${esc(m.tier)} member · <span class="ok">● ${esc(m.status)}</span> · next bill ${esc(m.nextBill)}</p><div class="row">${bookBtn('Book my next shine')}<a class="btn ghost" href="#/perks">Open the vault</a><a class="btn ghost" href="#/tour">Tour the Club</a></div></section>
+ <section class="stats rise"><div class="panel"><b data-count="${S.rating.stars}">0</b><small>Star rating</small></div><div class="panel"><b data-count="${S.rating.reviews}">0</b><small>Verified reviews</small></div><div class="panel"><b>$<span data-count="${m.rate}">0</span></b><small>Your rate</small><span class="demo">DEMO MEMBER</span></div></section>
+ <section class="panel alert rise"><p class="eyebrow">Next service due</p><h2>${esc(S.next.date)} · ${esc(S.next.time)}</h2><p class="muted">${esc(S.next.vehicle)} · ${esc(S.next.where)}</p>
+  <div class="wx"><span>🌧</span><p><b>Rain in the forecast (demo alert)</b><br><span class="muted">If weather moves in, we'll text you a new time to choose. Nothing changes until you pick.</span></p></div></section>
+ <a class="panel ratecta rise" href="#/rate"><span><p class="eyebrow">Last visit · ${esc(S.lastVisit.date)}</p><b>How did we do?</b> <span class="muted">Rate it, tip if you want.</span></span><span class="stars">★★★★★</span></a>
  ${card3d()}
  <section class="grid2">
   <article class="panel next rise"><p class="eyebrow">Next detail</p><h2>${esc(S.next.date)} · ${esc(S.next.time)}</h2><p>${esc(S.next.service)}<br><span class="muted">${esc(S.next.vehicle)} · ${esc(S.next.where)}</span></p>
    <div class="row">${bookBtn('Reschedule on Square','btn ghost')}<a class="btn ghost" href="#/concierge">Message concierge</a></div></article>
-  <article class="panel rise"><p class="eyebrow">Your garage</p>${S.vehicles.map(v => `<a class="veh" href="#/garage">${ring(v.health,52)}<span><b>${esc(v.name)}</b><small>${esc(v.detail)}</small></span><i>›</i></a>`).join('')}</article>
+  <article class="panel rise"><p class="eyebrow">Your garage</p>${S.vehicles.map(v => `<a class="veh" href="#/car?id=${v.id}">${ring(v.health,52)}<span><b>${esc(v.name)}</b><small>${esc(v.detail)}</small></span><i>›</i></a>`).join('')}</article>
  </section>
  <section class="quick rise">${[['book','Book a detail'],['perks','Perks vault'],['care','Care tips'],['refer','Refer a friend'],['history','History'],['add','Add car'],['building','Building'],['plan','My plan']].map(([r,l]) => `<a href="#/${r}" class="q"><span>${l}</span></a>`).join('')}</section>
  <section class="panel trust rise"><b>★ ${S.rating.stars}</b> from ${S.rating.reviews} verified reviews<span class="muted"> · Mobile detailing across the 757</span></section>`,
@@ -41,7 +71,7 @@ garage: () => `<h1 class="rise">Your Garage</h1>
   <div class="paints" role="group" aria-label="Preview paint">${[['Obsidian','#0a0d14'],['Pearl','#d9dde2'],['Carmine','#5a0710'],['Midnight','#0b1a3a']].map(([n,c],i)=>`<button class="paint${i?'':' on'}" data-paint="${c}" style="--c:${c}" aria-label="${n}"></button>`).join('')}</div></section>
  <p class="credit rise">Sample 3D car: “CarConcept” by Eric Chadwick / Darmstadt Graphics Group, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, via Khronos glTF Sample Assets (plate texture removed, paint recolored).</p>
  <a class="addcta rise" href="#/add"><span class="plus">＋</span><span><b>Add your car in 3D</b><small>4 photos · front, both sides, rear · we build the model</small></span><i>›</i></a>
- <div class="stack">${S.vehicles.map(v => `<article class="panel rise"><div class="vrow"><div><h2>${esc(v.name)}</h2><p class="muted">${esc(v.detail)} · ${esc(v.plate)}</p></div>${ring(v.health)}</div>
+ <div class="stack">${S.vehicles.map(v => `<article class="panel rise"><div class="vrow"><div><h2>${esc(v.name)}</h2><p class="muted">${esc(v.detail)} · ${esc(v.plate)}</p></div>${ring(v.health)}</div><a class="btn ghost sm" href="#/car?id=${v.id}">Reports, history &amp; docs →</a>
  <dl class="two"><div><dt>Last visit</dt><dd>${esc(v.last)}</dd></div><div><dt>Protection</dt><dd>${esc(v.coat)}</dd></div></dl>
  <div class="row">${bookBtn('Book this car')}<a class="btn ghost" href="#/history">History</a></div></article>`).join('')}</div>
  <p class="fine">Shine health is a demo score. 3D models are a visual illustration, not a guarantee of results.</p>`,
@@ -60,16 +90,30 @@ history: () => `<h1 class="rise">Service History</h1><ol class="timeline">${S.hi
 care: () => `<h1 class="rise">Care Between Visits</h1><div class="filters rise">${['All',...new Set(S.care.map(c => c.tag))].map((t,i) => `<button class="chip${i?'':' on'}" data-f="${t}">${t}</button>`).join('')}</div>
  <div class="stack" id="care">${S.care.map(c => `<details class="panel tip rise" data-t="${c.tag}"><summary><span class="chip">${c.tag}</span>${esc(c.t)}</summary><p>${esc(c.d)}</p></details>`).join('')}</div>`,
 perks: () => `<h1 class="rise">Perks Vault</h1><p class="muted rise">Members-only. Tap a perk to reveal.</p>
- <div class="vault">${S.perks.map((p,i) => `<button class="perk rise${p.unlocked?'':' locked'}" data-perk="${i}" aria-pressed="false"><span class="pi">${p.icon}</span><b>${esc(p.t)}</b><span class="pd">${p.unlocked ? esc(p.d) : 'Coming soon'}</span></button>`).join('')}</div>`,
-refer: () => `<h1 class="rise">Refer a Friend</h1><article class="panel rise"><p>Share your link. When a friend joins, our team follows up with you about your thank-you.</p>
- <div class="copy"><code>smrdetailing.com/shine-club?ref=DEMO</code><button class="btn gold" data-act="copy">Copy</button></div><p class="fine">Referral reward terms to be confirmed by the owners before launch.</p></article>`,
+ <div class="vault">${S.perks.map((p,i) => `<button class="perk rise${p.unlocked?'':' locked'}" data-perk="${i}" aria-pressed="false"><span class="pi">${p.icon}</span><b>${esc(p.t)}</b><span class="pd">${p.unlocked ? esc(p.d) : 'Coming soon'}</span></button>`).join('')}</div>
+ <div class="stack"><a class="panel msgline rise" href="#/savings"><span>💰</span><span><b>Your savings &amp; loyalty</b><br><span class="muted">${S.config.addonDiscountPct}% off add-ons, your rate lock, your tier</span></span></a></div>`,
+savings: () => { const C = S.config, months = monthsSince(m.since), lock = (C.newRate - C.foundingRate) * months, add = Math.round(C.demoBooked.price * C.addonDiscountPct) / 100;
+ const L = C.loyalty, cur = [...L].reverse().find(t => months >= t.from), nxt = L.find(t => t.from > months);
+ return `<h1 class="rise">Your Savings</h1><p class="muted rise">Demo math with real Shine My Ride prices.</p>
+ <article class="panel rise meter"><small>Saved so far (demo)</small><b class="display">$<span data-count="${(lock + add).toFixed(2)}">0</span></b></article>
+ <details class="panel rise"><summary>How we got that</summary><dl class="rlist one"><div><dt>Founding rate lock</dt><dd>$${C.newRate} − $${C.foundingRate} = $${C.newRate - C.foundingRate}/mo × ${months} mo = $${lock}</dd></div>
+ <div><dt>Members-only add-on discount (${C.addonDiscountPct}%)</dt><dd>${esc(C.demoBooked.name)} $${C.demoBooked.price} → you save $${add.toFixed(2)} (demo booking)</dd></div></dl></details>
+ <article class="panel rise"><p class="eyebrow">Loyalty</p><h2>${esc(cur.t)}</h2><p class="muted">${nxt ? `${nxt.from - months} more month${nxt.from - months === 1 ? '' : 's'} to ${esc(nxt.t)}` : 'Top tier reached'}</p>
+ <div class="bar"><i style="width:${nxt ? Math.round(100 * (months - cur.from) / (nxt.from - cur.from)) : 100}%"></i></div><p class="fine">Tiers grow with continuous membership. Tier perks are announced by the owners.</p></article>`; },
+refer: () => { const R = S.config.referral; return `<h1 class="rise">Refer a Friend</h1>
+ <article class="panel rise"><div class="refer2"><div><b class="display">$${R.friend}</b><small>off for your friend</small></div><div><b class="display">$${R.referrer}</b><small>credit for you</small></div></div>
+ <div class="copy"><code>smrdetailing.com/shine-club?ref=DEMO</code><button class="btn gold" data-act="copy">Copy</button></div></article>
+ <a class="panel msgline rise" href="#/share"><span>🎁</span><span><b>Gift a membership or add a household car</b><br><span class="muted">See the options</span></span></a>`; },
+share: () => { const C = S.config, p = (v) => v ? '$' + v + '/mo' : 'Price set by owner'; return `<h1 class="rise">Share the Club</h1>
+ <article class="panel rise"><p class="eyebrow">Gift membership</p><h2>Give someone their first month of shine</h2><p class="muted">${p(C.giftPrice)}</p><button class="btn ghost sm" disabled>Coming soon</button></article>
+ <article class="panel rise"><p class="eyebrow">Household plan</p><h2>Every car in the driveway, one plan</h2><p class="muted">${p(C.householdPrice)}</p><a class="btn ghost sm" href="#/concierge">Ask concierge</a></article>`; },
 concierge: () => `<h1 class="rise">Concierge</h1><p class="muted rise">A real person on our team answers. Preview: nothing is sent.</p>
  <form class="panel rise" id="cform"><label>What do you need?<select name="k"><option>Reschedule my visit</option><option>Quote: ceramic or correction</option><option>Add interior shampoo (Gold+)</option><option>Something else</option></select></label><label>Details<textarea name="d" rows="4" required placeholder="Tell us about it"></textarea></label><button class="btn gold">Send request</button></form>
  <div class="row rise"><a class="btn ghost" href="tel:${S.tel}">Call ${S.phone}</a><a class="btn ghost" href="sms:${S.tel}">Text us</a></div>`,
-plan: () => `<h1 class="rise">My Plan</h1>${card3d()}<article class="panel rise"><dl><div><dt>Tier</dt><dd>${esc(m.tier)} member</dd></div><div><dt>Monthly rate</dt><dd>$${m.rate}/mo, locked while your membership stays continuous</dd></div><div><dt>New-member rate</dt><dd>$${m.newRate}/mo</dd></div><div><dt>Status</dt><dd class="ok">${esc(m.status)}</dd></div><div><dt>Next bill</dt><dd>${esc(m.nextBill)}</dd></div></dl>
+plan: () => `<h1 class="rise">My Plan</h1>${card3d()}<p class="spots rise"><b>${S.config.foundingLeft} of ${S.config.foundingTotal}</b> founding spots left · ${esc(S.config.foundingNote)}</p><article class="panel rise"><dl><div><dt>Tier</dt><dd>${esc(m.tier)} member</dd></div><div><dt>Monthly rate</dt><dd>$${m.rate}/mo, locked while your membership stays continuous</dd></div><div><dt>New-member rate</dt><dd>$${m.newRate}/mo</dd></div><div><dt>Status</dt><dd class="ok">${esc(m.status)}</dd></div><div><dt>Next bill</dt><dd>${esc(m.nextBill)}</dd></div></dl>
  <p class="fine">Each month includes one maintenance visit (not a full detail). Cancel anytime from your portal. If you cancel or your membership lapses, the founding rate ends and rejoining is at $${m.newRate}/mo.</p>
  <div class="row"><button class="btn ghost" data-act="pause">Pause</button><button class="btn ghost danger" data-act="cancel">Cancel membership</button></div></article>`,
-more: () => `<h1 class="rise">More</h1><div class="stack">${[['history','Service history','Every visit, every car'],['care','Care tips','Keep the shine between visits'],['refer','Refer a friend','Share the club'],['concierge','Concierge','Talk to our team'],['plan','My plan','Rate, billing, pause or cancel']].map(([r,t,d]) => `<a class="panel link rise" href="#/${r}"><b>${t}</b><span class="muted">${d}</span><i>›</i></a>`).join('')}</div>`
+more: () => `<h1 class="rise">More</h1><div class="stack">${[['tour','Replay the tour','See everything the Club includes'],['savings','Savings &amp; loyalty','Your rate lock, discount and tier'],['share','Gift & household','Share the Club'],['history','Service history','Every visit, every car'],['care','Care tips','Keep the shine between visits'],['refer','Refer a friend','Share the club'],['concierge','Concierge','Talk to our team'],['plan','My plan','Rate, billing, pause or cancel']].map(([r,t,d]) => `<a class="panel link rise" href="#/${r}"><b>${t}</b><span class="muted">${d}</span><i>›</i></a>`).join('')}</div>`
 };
 const out = (cls, p) => `<svg class="guide" viewBox="0 0 200 120" aria-hidden="true"><path d="${p}"/></svg>`;
 const SHOTS = [
@@ -90,14 +134,14 @@ async function afterRender(key){
  if (stop3d) { stop3d(); stop3d = null; }
  if (key === 'garage') { const stage = $('#stage'); const go = async () => { const m = await import('./garage3d.js'); stop3d = m.mount(stage, 'models/sample-car.glb', { onReady: () => stage.classList.add('ready'), onProgress: p => stage.style.setProperty('--p', p) }); };
   ('IntersectionObserver' in window) ? new IntersectionObserver((e,o)=>{ if(e[0].isIntersecting){ o.disconnect(); const idle = window.requestIdleCallback || (f => setTimeout(f, 1)); (document.readyState === 'complete' ? Promise.resolve() : new Promise(r => addEventListener('load', r, { once: true }))).then(() => setTimeout(() => idle(go, { timeout: 2000 }), 1800)); } }).observe(stage) : go(); }
- if (key === 'building') { const { createModelJob, watchJob } = await import('./api-stub.js'); const job = await createModelJob(shots.filter(Boolean)); const c = 2*Math.PI*52;
+ if (key === 'building') { const { createModelJob, watchJob } = await import(window.SHINE_GARAGE3D_LIVE === true ? './api-live.js' : './api-stub.js'); const job = await createModelJob(window.SHINE_GARAGE3D_LIVE === true ? shots : shots.filter(Boolean)); const c = 2*Math.PI*52;
   $('#pg').style.strokeDasharray = c; $('#pg').style.strokeDashoffset = c;
   watchJob(job.id, u => { if (!$('#pg')) return; $('#pg').style.strokeDashoffset = c*(1-u.progress/100); $('#pct').textContent = u.progress+'%'; $('#step').textContent = u.step;
    if (u.status === 'done') setTimeout(() => { toast('Preview: showing the sample model'); location.hash = '#/garage'; }, 700); }); }
 }
 function greet(){ const h = new Date().getHours(); return h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
 function render(){
- const r = (location.hash.match(/#\/(\w+)/) || [,'home'])[1], key = pages[r] ? r : 'home';
+ const r = (location.hash.match(/#\/(\w+)/) || [,(localStorage.getItem('sc_tour_done') ? 'home' : 'tour')])[1], key = pages[r] ? r : 'home';
  view.innerHTML = pages[key](); view.dataset.page = key;
  document.querySelectorAll('[data-r]').forEach(a => a.toggleAttribute('aria-current', a.dataset.r === key || (key !== 'home' && a.dataset.r === 'more' && !['garage','book','perks'].includes(key) && a.closest('.tabs'))));
  document.title = (key === 'home' ? 'Members Lounge' : routes.find(x => x[0] === key)[1]) + ' · Shine Club';
@@ -105,7 +149,7 @@ function render(){
  requestAnimationFrame(() => view.classList.add('in')); window.scrollTo(0, 0); afterRender(key);
 }
 window.addEventListener('hashchange', () => { view.classList.remove('in'); render(); });
-document.addEventListener('click', e => {
+document.addEventListener('click', e => { const st = e.target.closest('[data-star]'); if (st) { const n=+st.dataset.star; document.querySelectorAll('[data-star]').forEach(b=>b.classList.toggle('on', +b.dataset.star<=n)); document.querySelector('.tips').hidden=false; } if (e.target.closest('[data-tip]')) toast('Preview: thank you! Nothing was charged.'); if (e.target.closest('[data-skip]')) try { localStorage.setItem('sc_tour_done', '1'); } catch {}
  const p = e.target.closest('[data-perk]'); if (p) { p.classList.toggle('open'); p.setAttribute('aria-pressed', p.classList.contains('open')); if (navigator.vibrate) navigator.vibrate(8); return; }
  const f = e.target.closest('[data-f]'); if (f) { document.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', b === f)); document.querySelectorAll('#care [data-t]').forEach(c => c.hidden = f.dataset.f !== 'All' && c.dataset.t !== f.dataset.f); return; }
  const a = e.target.closest('[data-act]'); if (!a) return;

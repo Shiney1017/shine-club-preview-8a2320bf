@@ -9,6 +9,23 @@ window.SC = {
     { id: "v1", name: "Sample SUV", detail: "Large SUV · Midnight Black", plate: "DEMO-01", health: 86, last: "Oct 14, 2026", coat: "Spray sealant", hue: 220 },
     { id: "v2", name: "Sample Coupe", detail: "Coupe · Pearl White", plate: "DEMO-02", health: 72, last: "Sep 30, 2026", coat: "Ceramic (demo)", hue: 350 }
   ],
+  // Owner-approved config (Oct 28, 2026). Change values here only.
+  config: {
+    foundingLeft: 23, foundingTotal: 100, foundingNote: "100 new spots added each quarter",
+    addonDiscountPct: 10,               // members-only add-on discount, approved range 10-20%
+    referral: { friend: 100, referrer: 100 }, // smr_price_list.md, Jay approved Oct 22, 2026
+    newRate: 149, foundingRate: 99,
+    demoBooked: { name: "Gold Full (Sedan)", price: 525 }, // real Square price, demo booking
+    loyalty: [{ t: "Member", from: 0 }, { t: "Silver Circle", from: 6 }, { t: "Gold Circle", from: 12 }, { t: "Platinum Circle", from: 24 }], // months of continuous membership; perks per tier set by owners
+    giftPrice: null, householdPrice: null // owner sets; shown as "set by owner" until filled
+  },
+  reports: {
+    v1: [{ date: "Oct 14, 2026", score: 86, paint: "Good", coat: "Sealant beading well", wheels: "Light brake dust", interior: "Clean", next: "Keep the monthly visit; consider ceramic before summer.", photos: ["Hood", "Driver door", "Wheel"] },
+         { date: "Sep 12, 2026", score: 81, paint: "Fair: light water spots", coat: "Sealant applied", wheels: "Cleaned", interior: "Vacuumed", next: "Park in shade after washing when you can.", photos: ["Hood", "Roof"] }],
+    v2: [{ date: "Sep 30, 2026", score: 72, paint: "Light swirls on doors", coat: "Ceramic (demo): beading reduced", wheels: "Good", interior: "Shampooed", next: "Ask us about a paint-correction quote.", photos: ["Door", "Seat"] }]
+  },
+  docs: { v1: [{ t: "Spray sealant · service record", d: "Oct 14, 2026" }], v2: [{ t: "Ceramic coating · care sheet (demo)", d: "Sep 30, 2026" }, { t: "Coating warranty (demo · terms from installer)", d: "Sep 30, 2026" }] },
+  lastVisit: { date: "Oct 14, 2026", vehicle: "Sample SUV", tech: "Demo tech" },
   next: { date: "Sat, Nov 7", time: "9:00 AM", service: "Monthly maintenance visit", vehicle: "Sample SUV", where: "At your driveway" },
   history: [
     { date: "Oct 14, 2026", service: "Monthly maintenance visit", vehicle: "Sample SUV", notes: "Hand wash, wheels, quick vacuum, spray sealant." },
@@ -18,12 +35,12 @@ window.SC = {
   services: [
     { id: "m", name: "Monthly maintenance visit", desc: "Hand wash & dry, wheels & tires, quick interior vacuum, spray sealant.", tag: "Included" },
     { id: "g", name: "Gold detail", desc: "Full interior + exterior. Interior shampoo available at Gold and higher.", tag: "Member pricing" },
-    { id: "c", name: "Ceramic coating", desc: "Long-term gloss and protection. Quote by vehicle.", tag: "Member savings" },
+    { id: "c", name: "Ceramic coating", desc: "Long-term gloss and protection. Quote by vehicle.", tag: "Quote" },
     { id: "p", name: "Paint correction", desc: "Swirl and scratch removal before protection. Quote after inspection.", tag: "Quote" }
   ],
   perks: [
     { t: "Priority booking", d: "First access to the calendar May through August.", icon: "⚡", unlocked: true },
-    { t: "Upgrade savings", d: "Member savings on ceramic coating and upgrades. Ask concierge for current terms.", icon: "◆", unlocked: true },
+    { t: "Members-only add-on discount", d: "10% off add-ons and upgrades.", icon: "◆", unlocked: true },
     { t: "Locked founding rate", d: "$99/mo locked while your membership stays continuous.", icon: "🔒", unlocked: true },
     { t: "Seasonal drop", d: "Members-only seasonal offer. Announced in the lounge first.", icon: "✦", unlocked: false }
   ],

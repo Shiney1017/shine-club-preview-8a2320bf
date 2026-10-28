@@ -21,8 +21,8 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
   const pm = new T.PMREMGenerator(r); scene.environment = pm.fromScene(envS, 0.02).texture;
 
   // Key + rim lights for drama
-  const key = new T.DirectionalLight(0xffffff, 2.2); key.position.set(3, 6, 4); scene.add(key);
-  const rim = new T.DirectionalLight(0xbcd2ff, 1.6); rim.position.set(-5, 3, -6); scene.add(rim);
+  const key = new T.SpotLight(0xffd29a, 60, 30, 0.45, 0.6, 1.2); key.position.set(1.5, 7, 3.5); scene.add(key);
+  const rim = new T.DirectionalLight(0xffb36b, 1.2); rim.position.set(-5, 3, -6); scene.add(rim);
 
   // Mirror-black floor with faint concentric rings
   const c = document.createElement('canvas'); c.width = c.height = 1024; const g = c.getContext('2d');
