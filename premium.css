@@ -108,4 +108,4 @@ body.auth .tabs,body.auth .side,body.auth .avatar,body.auth .foot{display:none!i
 .vfade{position:absolute;inset:0;pointer-events:none;background:radial-gradient(85% 75% at 50% 50%,transparent 55%,#060504 100%),linear-gradient(180deg,#060504 0,transparent 14%,transparent 80%,#060504 100%),radial-gradient(60% 40% at 50% 0,#ffcf8a1f,transparent 70%)}
 .phone video{position:absolute;left:9px;right:9px;width:calc(100% - 18px);object-fit:cover;border-radius:6px;opacity:0;transition:opacity .7s}
 .phone video.on{opacity:1}
-.phone video.pv{top:calc(9px + (100% - 18px) * .1918);height:calc((100% - 18px) * .3883);left:calc(9px + (100% - 18px) * .0121);width:calc((100% - 18px) * .9757);border-radius:2px;-webkit-mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%);mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%)}
+.phone video.pv{top:calc(9px + (100% - 18px) * .1918);height:calc((100% - 18px) * .3388);left:calc(9px + (100% - 18px) * .0121);width:calc((100% - 18px) * .9757);border-radius:2px;-webkit-mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%);mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%)}
