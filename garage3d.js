@@ -55,7 +55,9 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
     });
     paints = []; car.traverse(o => { if (o.isMesh && /^Paint 1/i.test(o.material.name || '')) paints.push(o.material); });
     const box = new T.Box3().setFromObject(car), size = box.getSize(new T.Vector3()), ctr = box.getCenter(new T.Vector3());
-    const s = 4.4 / Math.max(size.x, size.z); car.scale.setScalar(s); car.position.set(-ctr.x * s, -box.min.y * s, -ctr.z * s);
+    const s = 4.4 / Math.max(size.x, size.z); car.scale.setScalar(s);
+    const wb = new T.Box3(); car.traverse(o => { if (o.isMesh && /^Wheel|Tire/i.test((o.parent && o.parent.name) + ' ' + o.name)) wb.expandByObject(o); });
+    const minY = wb.isEmpty() ? box.min.y : wb.min.y; car.position.set(-ctr.x * s, -minY * s, -ctr.z * s);
     turn.add(car);
     const refl = car.clone(true); mirror.add(refl);
     shadow.scale.set(size.x * s * 1.5, size.z * s * 1.35, 1);
