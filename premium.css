@@ -109,3 +109,8 @@ body.auth .tabs,body.auth .side,body.auth .avatar,body.auth .foot{display:none!i
 .phone video{position:absolute;left:9px;right:9px;width:calc(100% - 18px);object-fit:cover;border-radius:6px;opacity:0;transition:opacity .7s}
 .phone video.on{opacity:1}
 .phone video.pv{top:calc(9px + (100% - 18px) * .1918);height:calc((100% - 18px) * .3388);left:calc(9px + (100% - 18px) * .0121);width:calc((100% - 18px) * .9757);border-radius:2px;-webkit-mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%);mask:radial-gradient(90% 80% at 50% 50%,#000 60%,transparent 100%)}
+/* Loyalty tier ladder */
+.tiers{list-style:none;margin:14px 0 4px;padding:0;display:grid;gap:8px}
+.tiers li{display:flex;gap:10px;align-items:baseline;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.08);opacity:.55;font-size:14px}
+.tiers li b{min-width:44px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.tiers li.on{opacity:1;border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.06)}
