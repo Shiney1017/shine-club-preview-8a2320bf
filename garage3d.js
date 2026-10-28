@@ -30,7 +30,7 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
   g.fillStyle = grd; g.fillRect(0, 0, 1024, 1024);
   for (let i = 1; i < 14; i++) { g.strokeStyle = `rgba(255,255,255,${0.05 - i * 0.003})`; g.lineWidth = 1.5; g.beginPath(); g.arc(512, 512, i * 36, 0, 7); g.stroke(); }
   const ft = new T.CanvasTexture(c); ft.colorSpace = T.SRGBColorSpace; ft.anisotropy = 4;
-  const floor = new T.Mesh(new T.CircleGeometry(12, 96), new T.MeshBasicMaterial({ map: ft, transparent: true, opacity: 0.78 }));
+  const floor = new T.Mesh(new T.CircleGeometry(12, 96), new T.MeshBasicMaterial({ map: ft }));
   floor.rotation.x = -Math.PI / 2; floor.renderOrder = 1; if (!location.search.includes('nofloor')) scene.add(floor);
 
   // Soft contact shadow
@@ -46,7 +46,7 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
 
   let paints = []; const onPaint = e => paints.forEach(m => m.color.set(e.detail)); addEventListener('paint', onPaint);
   const turn = new T.Group(); scene.add(turn);
-  const mirror = new T.Group(); mirror.scale.y = -1; if (!location.search.includes('nomirror')) scene.add(mirror);
+  const mirror = new T.Group(); mirror.scale.y = -1; if (location.search.includes('mirror')) scene.add(mirror);
   new GLTFLoader().load(url, gltf => {
     const car = gltf.scene;
     car.traverse(o => { if (!o.isMesh) return; const m = o.material;
@@ -65,7 +65,7 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
     onReady && onReady();
   }, e => onProgress && e.total && onProgress(e.loaded / e.total), () => host.dataset.err = '1');
 
-  const fit = () => { const w = host.clientWidth, hh = host.clientHeight; r.setSize(w, hh, false); cam.aspect = w / hh; cam.fov = cam.aspect < 1.3 ? 30 * Math.min(2, 1.75 / cam.aspect) : 30; cam.updateProjectionMatrix(); };
+  const fit = () => { const w = host.clientWidth, hh = host.clientHeight; r.setSize(w, hh, false); cam.aspect = w / hh; cam.fov = cam.aspect < 1.3 ? 30 * Math.min(1.6, 1.35 / cam.aspect) : 30; cam.updateProjectionMatrix(); };
   const ro = new ResizeObserver(fit); ro.observe(host); fit();
   let vis = true; const io = new IntersectionObserver(([e]) => vis = e.isIntersecting); io.observe(host);
   let last = 0; const minDt = low ? 1000 / 40 : 0; r.setAnimationLoop(t => { if (!vis || document.hidden || t - last < minDt) return; last = t; ctl.update(); mirror.quaternion.copy(turn.quaternion); r.render(scene, cam); });
