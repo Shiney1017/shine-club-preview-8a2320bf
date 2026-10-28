@@ -51,7 +51,7 @@ export function mount(host, url, { onProgress, onReady, paint } = {}) {
     const car = gltf.scene;
     car.traverse(o => { if (!o.isMesh) return; const m = o.material;
       if (/licen/i.test(m.name || '')) { m.map = null; m.color = new T.Color(0x111111); m.emissiveMap = null; }
-      if (/^Paint 1/i.test(m.name || '')) { m.color = new T.Color(paint || 0x0a0d14); m.normalMap = null; m.metalness = 0.55; m.roughness = 0.28; if ('clearcoat' in m) { m.clearcoat = 1; m.clearcoatRoughness = 0.03; } m.envMapIntensity = 1.4; }
+      if (/^Paint 1/i.test(m.name || '')) { m.color = new T.Color(paint || 0x0a0d14); m.normalMap = null; m.metalness = 0.6; m.roughness = 0.22; if ('clearcoat' in m) { m.clearcoat = 1; m.clearcoatRoughness = 0.03; } m.envMapIntensity = 1.4; }
     });
     paints = []; car.traverse(o => { if (o.isMesh && /^Paint 1/i.test(o.material.name || '')) paints.push(o.material); });
     const box = new T.Box3().setFromObject(car), size = box.getSize(new T.Vector3()), ctr = box.getCenter(new T.Vector3());

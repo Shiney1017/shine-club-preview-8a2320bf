@@ -87,7 +87,7 @@ home: () => `
 garage: () => `<h1 class="rise">Your Garage</h1>
  <section class="studio rise" aria-label="3D studio viewer"><div class="stage" id="stage"><div class="loader"><span></span><em>Rolling into the studio…</em></div></div>
   <div class="stage-ui"><span class="pill">SAMPLE MODEL · not your car</span><span class="hint">Drag to rotate · pinch to zoom</span></div>
-  <div class="paints" role="group" aria-label="Preview paint">${[['Obsidian','#0a0d14'],['Pearl','#d9dde2'],['Carmine','#5a0710'],['Midnight','#0b1a3a']].map(([n,c],i)=>`<button class="paint${i?'':' on'}" data-paint="${c}" style="--c:${c}" aria-label="${n}"></button>`).join('')}</div></section>
+  <div class="paints" role="group" aria-label="Preview paint">${[['Shine Blue','#1658d8'],['Obsidian','#0a0d14'],['Pearl','#d9dde2'],['Carmine','#5a0710'],['Midnight','#0b1a3a']].map(([n,c],i)=>`<button class="paint${i?'':' on'}" data-paint="${c}" style="--c:${c}" aria-label="${n}"></button>`).join('')}</div></section>
  <p class="credit rise">Sample 3D car: “CarConcept” by Eric Chadwick / Darmstadt Graphics Group, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, via Khronos glTF Sample Assets (plate texture removed, paint recolored).</p>
  <a class="addcta rise" href="#/add"><span class="plus">＋</span><span><b>Add your car in 3D</b><small>4 photos · front, both sides, rear · we build the model</small></span><i>›</i></a>
  <div class="stack">${S.vehicles.map(v => `<article class="panel rise"><div class="vrow"><div><h2>${esc(v.name)}</h2><p class="muted">${esc(v.detail)} · ${esc(v.plate)}</p></div>${ring(v.health)}</div><a class="btn ghost sm" href="#/car?id=${v.id}">Reports, history &amp; docs →</a>
@@ -151,7 +151,7 @@ async function checkImage(file){ const bmp = await createImageBitmap(file); cons
 let stop3d = null;
 async function afterRender(key){
  if (stop3d) { stop3d(); stop3d = null; }
- if (key === 'garage') { const stage = $('#stage'); const go = async () => { const m = await import('./garage3d.js'); stop3d = m.mount(stage, 'models/sample-car.glb', { onReady: () => stage.classList.add('ready'), onProgress: p => stage.style.setProperty('--p', p) }); };
+ if (key === 'garage') { const stage = $('#stage'); const go = async () => { const m = await import('./garage3d.js'); stop3d = m.mount(stage, 'models/sample-car.glb', { paint: 0x1658d8, onReady: () => stage.classList.add('ready'), onProgress: p => stage.style.setProperty('--p', p) }); };
   ('IntersectionObserver' in window) ? new IntersectionObserver((e,o)=>{ if(e[0].isIntersecting){ o.disconnect(); const idle = window.requestIdleCallback || (f => setTimeout(f, 1)); (document.readyState === 'complete' ? Promise.resolve() : new Promise(r => addEventListener('load', r, { once: true }))).then(() => setTimeout(() => idle(go, { timeout: 2000 }), 1800)); } }).observe(stage) : go(); }
  if (key === 'building') { const { createModelJob, watchJob } = await import(window.SHINE_GARAGE3D_LIVE === true ? './api-live.js' : './api-stub.js'); const job = await createModelJob(window.SHINE_GARAGE3D_LIVE === true ? shots : shots.filter(Boolean)); const c = 2*Math.PI*52;
   $('#pg').style.strokeDasharray = c; $('#pg').style.strokeDashoffset = c;
