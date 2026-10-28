@@ -15,12 +15,31 @@
     spots.forEach((at, i) => { const q = document.createElement('blockquote'); q.className = 'pq'; q.innerHTML = pick[i] + '<small>Care note</small>'; kids[at].after(q);
       qo ? qo.observe(q) : q.classList.add('in'); }); }
   function tour() { const ph = document.getElementById('phone'); if (!ph || ph.dataset.t) return; ph.dataset.t = 1;
-    const imgs = ph.querySelectorAll('img'), steps = document.querySelectorAll('.tstep'); steps[0]?.classList.add('on');
+    const imgs = ph.querySelectorAll('img,video'), steps = document.querySelectorAll('.tstep'); steps[0]?.classList.add('on');
     const so = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; const i = +e.target.dataset.i;
       steps.forEach((s) => s.classList.toggle('on', s === e.target)); imgs.forEach((im) => im.classList.toggle('on', +im.dataset.i === i));
       if (!still) ph.style.transform = `rotateY(${i % 2 ? 12 : -14}deg) rotateX(6deg) rotateZ(${i % 2 ? -2 : 2}deg)`; }), { rootMargin: '-45% 0px -45% 0px' });
     steps.forEach((s) => so.observe(s)); }
-  function scan() { tour(); if (!document.getElementById('phone')) quotes(); document.querySelectorAll('[data-count]:not([data-c])').forEach((el) => { el.dataset.c = 1; io ? io.observe(el) : count(el); });
+  function bay() { const st = document.getElementById('stage'); if (!st || st.querySelector('.bay')) return;
+    const q = location.hash.split('door=')[1] || '';
+    if (sessionStorage.getItem('sc_bay') && !q) return; sessionStorage.setItem('sc_bay', 1);
+    const seams = [1, 2, 3, 4, 5, 6, 7].map((i) => i * 12.5);
+    const d = document.createElement('div'); d.className = 'bay'; d.setAttribute('aria-hidden', 'true');
+    const W = st.clientWidth || 400, H = st.clientHeight || 400, fs = Math.min(W * .118, H * .16), cx = W / 2, by = H * .86;
+    const drips = [-.33, -.12, .1, .29].map((k, i) => { const x = cx + k * W * .9, y = by + fs * .08 + k * -W * .14 * .9, l = fs * (.25 + (i % 2) * .22);
+      return `<path d="M${x} ${y} q1 ${l * .6} -.5 ${l}" stroke-width="${fs * .045}"/><circle cx="${x - .5}" cy="${y + l + 2}" r="${fs * .04}"/>`; }).join('');
+    d.innerHTML = `<svg class="gtag" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+      <defs><filter id="spray" x="-10%" y="-20%" width="120%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="7" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="${fs * .06}" result="r"/></filter><filter id="oversp" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="${fs * .06}"/></filter>
+        <mask id="seams" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><rect width="${W}" height="${H}" fill="#fff"/>${[1, 2, 3, 4, 5, 6, 7].map((i) => `<rect y="${H * i / 8 - 1.5}" width="${W}" height="3" fill="#000"/>`).join('')}</mask></defs>
+      <g mask="url(#seams)"><g filter="url(#spray)" transform="rotate(-8 ${cx} ${by})" fill="#0b0b0c" stroke="#0b0b0c" stroke-linecap="round">
+        <text x="${cx}" y="${by}" stroke="none" text-anchor="middle" filter="url(#oversp)" opacity=".38" font-family="'Sedgwick Ave Display',cursive" font-size="${fs * 1.02}">MEMBERS ONLY</text><text x="${cx}" y="${by}" stroke="none" text-anchor="middle" font-family="'Sedgwick Ave Display',cursive" font-size="${fs}">MEMBERS ONLY</text>${drips.replace(/<path /g, '<path fill="none" ')}</g></g></svg><div class="ridges"></div><div class="handle"></div>`;
+    st.appendChild(d);
+    const open = () => d.classList.add('open'); const done = () => d.remove();
+    if (q.startsWith('closed')) return; if (q.startsWith('mid')) { d.classList.add('mid'); return; }
+    if (still) { d.classList.add('fade'); setTimeout(done, 700); return; }
+    setTimeout(open, 900); d.addEventListener('transitionend', (e) => { if (e.propertyName === 'transform') done(); }); }
+  function scan() { bay(); tour(); if (!document.getElementById('phone')) quotes(); document.querySelectorAll('[data-count]:not([data-c])').forEach((el) => { el.dataset.c = 1; io ? io.observe(el) : count(el); });
     if (still) return; document.querySelectorAll('.bcard,.stats div,.addcta').forEach((el) => el.classList.add('float')); }
   new MutationObserver(scan).observe(document.getElementById('view'), { childList: true }); scan();
   if (still) return;

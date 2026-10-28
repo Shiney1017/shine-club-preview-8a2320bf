@@ -66,7 +66,7 @@ welcome: () => `<section class="vip"><p class="eyebrow rise">You're in</p><h1 cl
  <article class="panel rise"><dl class="rlist one"><div><dt>Membership</dt><dd>${esc(m.badge || 'Founding Member')}</dd></div><div><dt>Billing</dt><dd>${esc(m.billing || 'Complimentary (invited)')}</dd></div></dl></article>
  <div class="row rise"><a class="btn gold" href="#/add">Add my car in 3D</a><a class="btn ghost" href="#/home" data-skip>Go to my dashboard</a></div></section>`,
 tour: () => `<h1 class="rise">Tour the Club</h1><p class="muted rise">Everything your membership opens up, in one place.</p>
- <section class="tour"><div class="phone-wrap"><div class="phone" id="phone"><div class="notch"></div>${TOUR.map((t,i)=>`<img src="tour/${t[0]}.webp" alt="${esc(t[1])} screen" ${i?'loading="lazy"':''} class="${i?'':'on'}" data-i="${i}">`).join('')}</div></div>
+ <section class="tour"><div class="phone-wrap"><div class="phone" id="phone"><div class="notch"></div>${TOUR.map((t,i)=>`<img src="tour/${t[0]}.webp" alt="${esc(t[1])} screen" ${i?'loading="lazy"':''} class="${i?'':'on'}" data-i="${i}">`).join('')}<video class="pv on" data-i="0" autoplay muted loop playsinline preload="metadata" poster="media/hero-car-poster.jpg" aria-hidden="true"><source src="media/hero-car.webm" type="video/webm"><source src="media/hero-car.mp4" type="video/mp4"></video></div></div>
  <div class="tsteps">${TOUR.map((t,i)=>`<div class="tstep" data-i="${i}"><p class="eyebrow">0${i+1}</p><h2>${esc(t[1])}</h2><p class="muted">${esc(t[2])}</p></div>`).join('')}</div></section>
  <div class="row rise"><a class="btn gold" href="#/home" data-skip>Go to my dashboard</a></div><a class="skip-pill" href="#/home" data-skip>Skip to my dashboard →</a>`,
 home: () => `
@@ -85,10 +85,8 @@ home: () => `
  <section class="quick rise">${[['book','Book a detail'],['perks','Perks vault'],['care','Care tips'],['refer','Refer a friend'],['history','History'],['add','Add car'],['building','Building'],['plan','My plan']].map(([r,l]) => `<a href="#/${r}" class="q"><span>${l}</span></a>`).join('')}</section>
  <section class="panel trust rise"><b>★ ${S.rating.stars}</b> from ${S.rating.reviews} verified reviews<span class="muted"> · Mobile detailing across the 757</span></section>`,
 garage: () => `<h1 class="rise">Your Garage</h1>
- <section class="studio rise" aria-label="3D studio viewer"><div class="stage" id="stage"><div class="loader"><span></span><em>Rolling into the studio…</em></div></div>
-  <div class="stage-ui"><span class="pill">SAMPLE MODEL · not your car</span><span class="hint">Drag to rotate · pinch to zoom</span></div>
-  <div class="paints" role="group" aria-label="Preview paint">${[['Shine Blue','#1658d8'],['Obsidian','#0a0d14'],['Pearl','#d9dde2'],['Carmine','#5a0710'],['Midnight','#0b1a3a']].map(([n,c],i)=>`<button class="paint${i?'':' on'}" data-paint="${c}" style="--c:${c}" aria-label="${n}"></button>`).join('')}</div></section>
- <p class="credit rise">Sample 3D car: “CarConcept” by Eric Chadwick / Darmstadt Graphics Group, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>, via Khronos glTF Sample Assets (plate texture removed, paint recolored).</p>
+ <section class="studio rise" aria-label="Garage showcase"><div class="stage show" id="stage" data-video="1"><video class="herovid" autoplay muted loop playsinline preload="metadata" poster="media/hero-car-poster.jpg" aria-label="Blue sports car turning in the studio"><source src="media/hero-car.webm" type="video/webm"><source src="media/hero-car.mp4" type="video/mp4"></video><div class="vfade"></div></div>
+  <div class="stage-ui"><span class="pill">SHOWCASE · your car appears here once you add it</span></div></section>
  <a class="addcta rise" href="#/add"><span class="plus">＋</span><span><b>Add your car in 3D</b><small>4 photos · front, both sides, rear · we build the model</small></span><i>›</i></a>
  <div class="stack">${S.vehicles.map(v => `<article class="panel rise"><div class="vrow"><div><h2>${esc(v.name)}</h2><p class="muted">${esc(v.detail)} · ${esc(v.plate)}</p></div>${ring(v.health)}</div><a class="btn ghost sm" href="#/car?id=${v.id}">Reports, history &amp; docs →</a>
  <dl class="two"><div><dt>Last visit</dt><dd>${esc(v.last)}</dd></div><div><dt>Protection</dt><dd>${esc(v.coat)}</dd></div></dl>
@@ -151,7 +149,7 @@ async function checkImage(file){ const bmp = await createImageBitmap(file); cons
 let stop3d = null;
 async function afterRender(key){
  if (stop3d) { stop3d(); stop3d = null; }
- if (key === 'garage') { const stage = $('#stage'); const go = async () => { const m = await import('./garage3d.js'); stop3d = m.mount(stage, 'models/sample-car.glb', { paint: 0x1658d8, onReady: () => stage.classList.add('ready'), onProgress: p => stage.style.setProperty('--p', p) }); };
+ if (key === 'garage' && !$('#stage')?.dataset.video) { const stage = $('#stage'); const go = async () => { const m = await import('./garage3d.js'); stop3d = m.mount(stage, 'models/sample-car.glb', { paint: 0x1658d8, onReady: () => stage.classList.add('ready'), onProgress: p => stage.style.setProperty('--p', p) }); };
   ('IntersectionObserver' in window) ? new IntersectionObserver((e,o)=>{ if(e[0].isIntersecting){ o.disconnect(); const idle = window.requestIdleCallback || (f => setTimeout(f, 1)); (document.readyState === 'complete' ? Promise.resolve() : new Promise(r => addEventListener('load', r, { once: true }))).then(() => setTimeout(() => idle(go, { timeout: 2000 }), 1800)); } }).observe(stage) : go(); }
  if (key === 'building') { const { createModelJob, watchJob } = await import(window.SHINE_GARAGE3D_LIVE === true ? './api-live.js' : './api-stub.js'); const job = await createModelJob(window.SHINE_GARAGE3D_LIVE === true ? shots : shots.filter(Boolean)); const c = 2*Math.PI*52;
   $('#pg').style.strokeDasharray = c; $('#pg').style.strokeDashoffset = c;
