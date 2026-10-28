@@ -12,10 +12,10 @@ const svg = k => `<svg viewBox="0 0 24 24" aria-hidden="true">${ico[k]}</svg>`;
 const TOUR = [['garage','Your car in 3D','Spin it, zoom in, see it in a studio spotlight.'],['add','Add your car','Four photos, front, both sides and rear. We build the model.'],['plan','Your membership card','Your tier, your rate, your member number, always on hand.'],['perks','The perks vault','Members-only extras, unlocked as you go.'],['book','Book in seconds','Pick a service and confirm in Square.']];
 const routes = [
  ['home','Lounge','home',1],['garage','Garage','garage',1],['book','Book','book',1],['perks','Vault','perks',1],['more','More','more',1],
- ['history','History'],['add','Add car'],['building','Building'],['care','Care'],['refer','Refer'],['concierge','Concierge'],['plan','Plan'],['tour','Tour'],['car','Car'],['transfer','Transfer car'],['rate','Rate visit'],['share','Share'],['savings','Savings']
+ ['history','History'],['add','Add car'],['building','Building'],['care','Care'],['refer','Refer'],['concierge','Concierge'],['plan','Plan'],['tour','Tour'],['car','Car'],['transfer','Transfer car'],['rate','Rate visit'],['share','Share'],['invite','Invitation'],['code','Enter code'],['signin','Sign in'],['welcome','Welcome'],['savings','Savings']
 ];
 $('.tabs').innerHTML = routes.filter(r => r[3]).map(r => `<a href="#/${r[0]}" data-r="${r[0]}">${svg(r[2])}<span>${r[1]}</span></a>`).join('');
-$('.side').innerHTML = routes.filter(r => !['more','add','building'].includes(r[0])).map(r => `<a href="#/${r[0]}" data-r="${r[0]}">${r[1]}</a>`).join('');
+$('.side').innerHTML = routes.filter(r => ['home','garage','book','perks','history','care','refer','concierge','plan'].includes(r[0])).map(r => `<a href="#/${r[0]}" data-r="${r[0]}">${r[1]}</a>`).join('');
 const toast = m => { const t = $('.toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2600); };
 const m = S.member;
 const ring = (v, size = 64) => { const r = size / 2 - 5, c = 2 * Math.PI * r; return `<svg class="ring" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="Shine health ${v} of 100"><circle cx="${size/2}" cy="${size/2}" r="${r}" class="bg"/><circle cx="${size/2}" cy="${size/2}" r="${r}" class="fg" style="--c:${c};--o:${c * (1 - v / 100)}"/><text x="50%" y="54%" text-anchor="middle">${v}</text></svg>`; };
@@ -23,7 +23,7 @@ const bookBtn = (label = 'Book on Square', cls = 'btn gold') => `<a class="${cls
 const card3d = () => `<div class="cardwrap"><div class="bcard tilt" aria-label="Shine Club member card (demo)"><div class="shine"></div>
  <div class="bc-top"><img src="brand/smr-logo-96.webp" width="34" height="34" alt=""><span>SHINE CLUB</span><em>${esc(m.tier)}</em></div>
  <div class="bc-num">${esc(m.number)}</div>
- <div class="bc-bot"><div><small>Member</small><b>${esc(m.first)} ${esc(m.last)}</b></div><div><small>Rate</small><b>$${m.rate}/mo</b></div><div><small>Since</small><b>Oct 2026</b></div></div></div><p class="lockbadge">🔒 Founding $99 locked while membership stays continuous</p></div>`;
+ <div class="bc-bot"><div><small>Member</small><b>${esc(m.first)} ${esc(m.last)}</b></div><div><small>Rate</small><b>${/Complimentary/.test(m.billing||'') ? 'Comp' : '$' + m.rate + '/mo'}</b></div><div><small>Since</small><b>Oct 2026</b></div></div></div>${/Complimentary/.test(m.billing||'') ? '' : '<p class="lockbadge">🔒 Founding $99 locked while membership stays continuous</p>'}</div>`;
 const monthsSince = (d) => { const a = new Date(d), b = new Date(); return Math.max(1, (b.getFullYear() - a.getFullYear()) * 12 + b.getMonth() - a.getMonth() + 1); };
 const pages = {
 car: () => { const id = (location.hash.split('?id=')[1]||'v1'), v = S.vehicles.find(x=>x.id===id)||S.vehicles[0], R = (S.reports||{})[v.id]||[], D = (S.docs||{})[v.id]||[];
@@ -46,13 +46,32 @@ rate: () => `<h1 class="rise">Rate your visit</h1><p class="muted rise">${esc(S.
  <div class="tips" hidden><p class="eyebrow">Add a tip? Optional</p><div class="row">${['$5','$10','$20','Custom','No tip'].map(t=>`<button class="btn ghost" data-tip>${t}</button>`).join('')}</div></div></article>
  <a class="panel msgline rise" href="sms:${S.tel}"><span>💬</span><span><b>Message us directly</b><br><span class="muted">Text ${esc(S.phone)}. A real person answers.</span></span></a>
  <p class="fine">Preview: tips and ratings aren't sent anywhere.</p>`,
+invite: () => `<section class="vip"><img class="vip-logo rise" src="brand/smr-logo-192.webp" width="88" height="88" alt="Shine My Ride 757">
+ <p class="eyebrow rise">By invitation</p><h1 class="rise">You've been invited to Shine Club</h1>
+ <p class="muted rise">A private members lounge from Shine My Ride 757. Your car in 3D, every visit on record, and a real person one text away.</p>
+ <article class="panel rise vipcard"><p class="eyebrow">Your membership</p><h2>Founding Member</h2><p class="muted">Billing: Complimentary (invited)</p></article>
+ <button class="btn gold rise" data-act="accept">Accept my invitation</button><p class="fine rise" id="authmsg" role="status"></p>
+ <p class="fine rise">Already a member? <a href="#/signin">Sign in</a></p></section>`,
+signin: () => `<section class="vip"><p class="eyebrow rise">Members</p><h1 class="rise">Welcome back</h1><p class="muted rise">We'll email you a 6-digit code. No password to remember.</p>
+ <label class="fld rise">Email<input id="authemail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+ <button class="btn gold rise" data-act="sendcode">Email me a code</button><p class="fine rise" id="authmsg" role="status"></p></section>`,
+code: () => `<section class="vip"><p class="eyebrow rise">Check your inbox</p><h1 class="rise">Enter your code</h1>
+ <p class="muted rise">We sent a 6-digit code to ${esc(sessionStorage.getItem('sc_hint') || 'your email')}. It works for 10 minutes.</p>
+ <label class="fld rise">Email<input id="authemail" type="email" autocomplete="email" inputmode="email" value="${esc(sessionStorage.getItem('sc_email') || '')}" placeholder="The email your invite went to"></label>
+ <div class="otp rise">${[0,1,2,3,4,5].map(i=>`<input inputmode="numeric" aria-label="Digit ${i+1}" data-otp="${i}" ${i?'':'autocomplete="one-time-code"'}>`).join('')}</div>
+ <button class="btn gold rise" data-act="verify">Continue</button><p class="fine rise" id="authmsg" role="status"></p>
+ <p class="fine rise"><a href="#/signin">Send a new code</a></p></section>`,
+welcome: () => `<section class="vip"><p class="eyebrow rise">You're in</p><h1 class="rise">Welcome to Shine Club${m.first && m.first !== 'Demo' ? ', ' + esc(m.first) : ''}</h1>
+ ${card3d()}
+ <article class="panel rise"><dl class="rlist one"><div><dt>Membership</dt><dd>${esc(m.badge || 'Founding Member')}</dd></div><div><dt>Billing</dt><dd>${esc(m.billing || 'Complimentary (invited)')}</dd></div></dl></article>
+ <div class="row rise"><a class="btn gold" href="#/add">Add my car in 3D</a><a class="btn ghost" href="#/home" data-skip>Go to my dashboard</a></div></section>`,
 tour: () => `<h1 class="rise">Tour the Club</h1><p class="muted rise">Everything your membership opens up, in one place.</p>
  <section class="tour"><div class="phone-wrap"><div class="phone" id="phone"><div class="notch"></div>${TOUR.map((t,i)=>`<img src="tour/${t[0]}.webp" alt="${esc(t[1])} screen" ${i?'loading="lazy"':''} class="${i?'':'on'}" data-i="${i}">`).join('')}</div></div>
  <div class="tsteps">${TOUR.map((t,i)=>`<div class="tstep" data-i="${i}"><p class="eyebrow">0${i+1}</p><h2>${esc(t[1])}</h2><p class="muted">${esc(t[2])}</p></div>`).join('')}</div></section>
  <div class="row rise"><a class="btn gold" href="#/home" data-skip>Go to my dashboard</a></div><a class="skip-pill" href="#/home" data-skip>Skip to my dashboard →</a>`,
 home: () => `
  <section class="hero rise"><p class="eyebrow">Good ${greet()}, ${esc(m.first)}</p><h1>Your Members Lounge</h1>
- <p class="muted">${esc(m.tier)} member · <span class="ok">● ${esc(m.status)}</span> · next bill ${esc(m.nextBill)}</p><div class="row">${bookBtn('Book my next shine')}<a class="btn ghost" href="#/perks">Open the vault</a><a class="btn ghost" href="#/tour">Tour the Club</a></div></section>
+ <p class="muted">${esc(m.tier)} member · <span class="ok">● ${esc(m.status)}</span> · ${m.billing ? esc(m.billing) : 'next bill ' + esc(m.nextBill)}</p><div class="row">${bookBtn('Book my next shine')}<a class="btn ghost" href="#/perks">Open the vault</a><a class="btn ghost" href="#/tour">Tour the Club</a></div></section>
  <section class="stats rise"><div class="panel"><b data-count="${S.rating.stars}">0</b><small>Star rating</small></div><div class="panel"><b data-count="${S.rating.reviews}">0</b><small>Verified reviews</small></div><div class="panel"><b>$<span data-count="${m.rate}">0</span></b><small>Your rate</small><span class="demo">DEMO MEMBER</span></div></section>
  <section class="panel alert rise"><p class="eyebrow">Next service due</p><h2>${esc(S.next.date)} · ${esc(S.next.time)}</h2><p class="muted">${esc(S.next.vehicle)} · ${esc(S.next.where)}</p>
   <div class="wx"><span>🌧</span><p><b>Rain in the forecast (demo alert)</b><br><span class="muted">If weather moves in, we'll text you a new time to choose. Nothing changes until you pick.</span></p></div></section>
@@ -110,7 +129,7 @@ share: () => { const C = S.config, p = (v) => v ? '$' + v + '/mo' : 'Price set b
 concierge: () => `<h1 class="rise">Concierge</h1><p class="muted rise">A real person on our team answers. Preview: nothing is sent.</p>
  <form class="panel rise" id="cform"><label>What do you need?<select name="k"><option>Reschedule my visit</option><option>Quote: ceramic or correction</option><option>Add interior shampoo (Gold+)</option><option>Something else</option></select></label><label>Details<textarea name="d" rows="4" required placeholder="Tell us about it"></textarea></label><button class="btn gold">Send request</button></form>
  <div class="row rise"><a class="btn ghost" href="tel:${S.tel}">Call ${S.phone}</a><a class="btn ghost" href="sms:${S.tel}">Text us</a></div>`,
-plan: () => `<h1 class="rise">My Plan</h1>${card3d()}<p class="spots rise"><b>${S.config.foundingLeft} of ${S.config.foundingTotal}</b> founding spots left · ${esc(S.config.foundingNote)}</p><article class="panel rise"><dl><div><dt>Tier</dt><dd>${esc(m.tier)} member</dd></div><div><dt>Monthly rate</dt><dd>$${m.rate}/mo, locked while your membership stays continuous</dd></div><div><dt>New-member rate</dt><dd>$${m.newRate}/mo</dd></div><div><dt>Status</dt><dd class="ok">${esc(m.status)}</dd></div><div><dt>Next bill</dt><dd>${esc(m.nextBill)}</dd></div></dl>
+plan: () => `<h1 class="rise">My Plan</h1>${card3d()}<p class="spots rise"><b>${S.config.foundingLeft} of ${S.config.foundingTotal}</b> founding spots left · ${esc(S.config.foundingNote)}</p><article class="panel rise"><dl><div><dt>Tier</dt><dd>${esc(m.tier)} member</dd></div><div><dt>Monthly rate</dt><dd>$${m.rate}/mo, locked while your membership stays continuous</dd></div><div><dt>New-member rate</dt><dd>$${m.newRate}/mo</dd></div><div><dt>Status</dt><dd class="ok">${esc(m.status)}</dd></div>${m.billing ? `<div><dt>Billing</dt><dd>${esc(m.billing)}</dd></div>` : `<div><dt>Next bill</dt><dd>${esc(m.nextBill)}</dd></div>`}</dl>
  <p class="fine">Each month includes one maintenance visit (not a full detail). Cancel anytime from your portal. If you cancel or your membership lapses, the founding rate ends and rejoining is at $${m.newRate}/mo.</p>
  <div class="row"><button class="btn ghost" data-act="pause">Pause</button><button class="btn ghost danger" data-act="cancel">Cancel membership</button></div></article>`,
 more: () => `<h1 class="rise">More</h1><div class="stack">${[['tour','Replay the tour','See everything the Club includes'],['savings','Savings &amp; loyalty','Your rate lock, discount and tier'],['share','Gift & household','Share the Club'],['history','Service history','Every visit, every car'],['care','Care tips','Keep the shine between visits'],['refer','Refer a friend','Share the club'],['concierge','Concierge','Talk to our team'],['plan','My plan','Rate, billing, pause or cancel']].map(([r,t,d]) => `<a class="panel link rise" href="#/${r}"><b>${t}</b><span class="muted">${d}</span><i>›</i></a>`).join('')}</div>`
@@ -142,7 +161,7 @@ async function afterRender(key){
 function greet(){ const h = new Date().getHours(); return h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
 function render(){
  const r = (location.hash.match(/#\/(\w+)/) || [,(localStorage.getItem('sc_tour_done') ? 'home' : 'tour')])[1], key = pages[r] ? r : 'home';
- view.innerHTML = pages[key](); view.dataset.page = key;
+ view.innerHTML = pages[key](); view.dataset.page = key; document.body.classList.toggle('auth', ['invite','code','signin'].includes(key));
  document.querySelectorAll('[data-r]').forEach(a => a.toggleAttribute('aria-current', a.dataset.r === key || (key !== 'home' && a.dataset.r === 'more' && !['garage','book','perks'].includes(key) && a.closest('.tabs'))));
  document.title = (key === 'home' ? 'Members Lounge' : routes.find(x => x[0] === key)[1]) + ' · Shine Club';
  [...view.querySelectorAll('.rise')].forEach((el, i) => el.style.setProperty('--d', Math.min(i, 8) * 45 + 'ms'));
@@ -153,6 +172,7 @@ document.addEventListener('click', e => { const st = e.target.closest('[data-sta
  const p = e.target.closest('[data-perk]'); if (p) { p.classList.toggle('open'); p.setAttribute('aria-pressed', p.classList.contains('open')); if (navigator.vibrate) navigator.vibrate(8); return; }
  const f = e.target.closest('[data-f]'); if (f) { document.querySelectorAll('[data-f]').forEach(b => b.classList.toggle('on', b === f)); document.querySelectorAll('#care [data-t]').forEach(c => c.hidden = f.dataset.f !== 'All' && c.dataset.t !== f.dataset.f); return; }
  const a = e.target.closest('[data-act]'); if (!a) return;
+ if (['accept','sendcode','verify'].includes(a.dataset.act)) { authAct(a); return; }
  ({ copy: () => { navigator.clipboard?.writeText('smrdetailing.com/shine-club?ref=DEMO'); toast('Link copied'); },
     addcar: () => toast('Preview: adding vehicles goes through concierge at launch'),
     pause: () => toast('Preview: pause is handled by the secure portal at launch'),
@@ -168,4 +188,35 @@ document.addEventListener('submit', e => { e.preventDefault(); e.target.reset();
 document.addEventListener('pointermove', e => { const c = e.target.closest?.('.tilt'); if (!c || matchMedia('(prefers-reduced-motion: reduce)').matches) return; const b = c.getBoundingClientRect(), x = (e.clientX - b.left) / b.width - .5, y = (e.clientY - b.top) / b.height - .5; c.style.transform = `perspective(900px) rotateY(${x*10}deg) rotateX(${-y*10}deg)`; c.style.setProperty('--mx', (x+.5)*100 + '%'); });
 document.addEventListener('pointerleave', e => { if (e.target.classList?.contains('tilt')) e.target.style.transform = ''; }, true);
 render();
+
+// ---- Accounts (invite / email code). Live only when window.SHINE_MEMBERS_LIVE === true; otherwise a safe demo.
+const LIVE = window.SHINE_MEMBERS_LIVE === true;
+async function api(path, body) { const r = await fetch(path, { method: body ? 'POST' : 'GET', credentials: 'same-origin', headers: body ? { 'Content-Type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined });
+ const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again.'); return j; }
+async function authAct(btn) {
+ const msg = document.getElementById('authmsg'), say = (t) => { if (msg) msg.textContent = t; };
+ btn.disabled = true; say('');
+ try {
+  if (btn.dataset.act === 'accept') { const token = (location.hash.split('/')[2] || '').trim();
+   const r = LIVE ? await api('/api/invite/start', { token }) : { emailHint: 'y•••@example.com (demo)' };
+   sessionStorage.setItem('sc_hint', r.emailHint); location.hash = '#/code'; }
+  if (btn.dataset.act === 'sendcode') { const email = document.getElementById('authemail').value.trim();
+   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { say('Enter the email you joined with.'); return; }
+   if (LIVE) await api('/api/login/start', { email }); sessionStorage.setItem('sc_email', email); sessionStorage.setItem('sc_hint', email); location.hash = '#/code'; }
+  if (btn.dataset.act === 'verify') { const email = document.getElementById('authemail').value.trim(), code = [...document.querySelectorAll('[data-otp]')].map(i => i.value).join('');
+   if (!/^\d{6}$/.test(code)) { say('Enter all 6 digits.'); return; }
+   if (LIVE) { const r = await api('/api/login/verify', { email, code }); applyMember(r.member); } else applyMember({ name: 'Demo Member', badge: 'Founding Member', billing: 'Complimentary (invited)' });
+   localStorage.setItem('sc_tour_done', '1'); location.hash = '#/welcome'; }
+ } catch (err) { say(err.message); } finally { btn.disabled = false; }
+}
+function applyMember(x) { if (!x) return; const m = S.member; const [first, ...rest] = String(x.name || '').split(' ');
+ Object.assign(m, { first: first || m.first, last: rest.join(' ') || '', badge: x.badge, billing: x.billing, tier: x.founding ? 'Founding' : (x.tier || m.tier),
+  initials: ((first || '')[0] || '') + ((rest[0] || '')[0] || ''), number: x.id ? 'SC-' + String(x.id).slice(0, 6).toUpperCase() : m.number, status: 'Active' });
+ if (Array.isArray(x.cars) && x.cars.length) S.vehicles = x.cars; const av = document.querySelector('.avatar'); if (av && m.initials) av.textContent = m.initials; }
+document.addEventListener('input', (e) => { const i = e.target.closest('[data-otp]'); if (!i) return;
+ const v = i.value.replace(/\D/g, ''); if (v.length > 1) { [...v].slice(0, 6).forEach((d, k) => { const t = document.querySelector(`[data-otp="${k}"]`); if (t) t.value = d; }); document.querySelector(`[data-otp="${Math.min(5, v.length - 1)}"]`)?.focus(); return; }
+ i.value = v; if (v) document.querySelector(`[data-otp="${+i.dataset.otp + 1}"]`)?.focus(); });
+document.addEventListener('keydown', (e) => { const i = e.target.closest?.('[data-otp]'); if (i && e.key === 'Backspace' && !i.value) document.querySelector(`[data-otp="${+i.dataset.otp - 1}"]`)?.focus(); });
+if (LIVE) api('/api/me').then((r) => { applyMember(r.member || r); render(); }).catch(() => { if (!/#\/(invite|code|signin)/.test(location.hash)) location.hash = '#/signin'; });
+
 })();
