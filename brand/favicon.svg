@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<defs>
+<linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F7F7F7"/><stop offset=".45" stop-color="#C8C7C6"/><stop offset=".55" stop-color="#ABAAA8"/><stop offset="1" stop-color="#F7F7F7"/></linearGradient>
+<linearGradient id="royal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0745EE"/><stop offset=".5" stop-color="#012BC6"/><stop offset="1" stop-color="#0123B0"/></linearGradient>
+</defs>
+<rect width="1024" height="1024" fill="#1D1D1B"/>
+<path d="M300 190 H724 L880 400 L512 860 L144 400 Z" fill="none" stroke="#0a0a0a" stroke-width="84" stroke-linejoin="round"/>
+<path d="M300 190 H724 L880 400 L512 860 L144 400 Z" fill="none" stroke="url(#chrome)" stroke-width="60" stroke-linejoin="round"/>
+<path d="M300 190 H724" stroke="#0745EE" stroke-width="60" stroke-linecap="round"/>
+<g transform="skewX(-8) translate(60,0)"><path d="M145 1Q161 247 214.0 461.0Q267 675 336.0 859.5Q405 1044 469 1198L567 1435H70V1761H958V1569Q958 1463 923.0 1355.0Q888 1247 831 1117Q707 835 633.5 555.5Q560 276 543 1Z" transform="translate(317.1,620) scale(0.1534,-0.1534)" fill="url(#chrome)" stroke="#0a0a0a" stroke-width="91.3" paint-order="stroke"/><path d="M506 -25Q303 -25 174.5 75.5Q46 176 46 384V646H412V495Q412 448 417.5 404.0Q423 360 443.0 332.0Q463 304 506 304Q563 304 581.0 342.5Q599 381 599 441V787Q599 830 593.5 872.0Q588 914 569.0 942.0Q550 970 508 970Q408 970 408 825H85V1761H924V1431H419V1183Q445 1215 489.5 1239.5Q534 1264 594 1264Q714 1264 789.5 1218.0Q865 1172 905.5 1090.0Q946 1008 961.5 900.0Q977 792 977 668Q977 509 960.5 381.5Q944 254 895.5 163.0Q847 72 753.5 23.5Q660 -25 506 -25Z" transform="translate(462.4,620) scale(0.1534,-0.1534)" fill="url(#royal)" stroke="#0a0a0a" stroke-width="91.3" paint-order="stroke"/><path d="M145 1Q161 247 214.0 461.0Q267 675 336.0 859.5Q405 1044 469 1198L567 1435H70V1761H958V1569Q958 1463 923.0 1355.0Q888 1247 831 1117Q707 835 633.5 555.5Q560 276 543 1Z" transform="translate(607.6,620) scale(0.1534,-0.1534)" fill="url(#chrome)" stroke="#0a0a0a" stroke-width="91.3" paint-order="stroke"/></g>
+</svg>
